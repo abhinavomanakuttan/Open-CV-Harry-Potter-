@@ -1,84 +1,72 @@
-#  Harry Potter Invisibility Cloak using OpenCV
-# Made simple for school students to understand step by step!
+# 🪄 Harry Potter Invisibility Cloak (White Edition)
 
-import cv2      # OpenCV for computer vision tasks
-import numpy as np  # Numpy for numerical operations
-import time     # Time module to add delays
+import cv2
+import numpy as np
+import time
 
-#  STEP 1: Open the webcam
-cap = cv2.VideoCapture(0)  # 0 = Default camera
+# 🎥 STEP 1: Open webcam
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
-    print(" Camera not found! Try plugging in a webcam or changing index to 1 or 2.")
+    print("❌ Camera not found! Try changing index to 1 or 2.")
     exit()
 
-# Give the camera 2 seconds to adjust brightness
-time.sleep(2)
+time.sleep(2)  # Allow camera to adjust lighting
 
-#  STEP 2: Capture the background (without the cloak)
-print("📸 Capturing background... Stand still for 3 seconds!")
-for i in range(60):  # Take multiple frames for a clean background
+# 🖼️ STEP 2: Capture background
+print("📸 Capturing background... Stand still!")
+for i in range(60):
     ret, background = cap.read()
     if ret:
-        background = cv2.flip(background, 1)  # Flip to avoid mirror effect
-print(" Background captured successfully!")
+        background = cv2.flip(background, 1)
+print("✅ Background captured!")
 
-#  STEP 3: Define cloak color range (Here we use RED)
-# NOTE: HSV (Hue, Saturation, Value) is better for color detection than RGB
-lower_red1 = np.array([0, 120, 70])     # Lower range for red
-upper_red1 = np.array([10, 255, 255])   # Upper range for red
-lower_red2 = np.array([170, 120, 70])   # Red wraps around, so a second range
-upper_red2 = np.array([180, 255, 255])  # Second upper range
+# 🎨 STEP 3: Define white color range in HSV
+# White = Low Saturation (S), High Brightness (V)
+lower_white = np.array([0, 0, 200])     # Lower bound for white
+upper_white = np.array([180, 40, 255])  # Upper bound for white
 
-print(" Starting Invisibility Cloak! Press 'ESC' to quit, 'b' to recapture background.")
+print("🎬 White cloak mode ON! Press ESC to quit, B to reset background.")
 
-#  STEP 4: Start reading frames continuously
+# 🖥️ STEP 4: Start capturing frames
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
     
-    # Flip the frame to match mirror view
-    frame = cv2.flip(frame, 1)
+    frame = cv2.flip(frame, 1)  # Mirror view
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)  # Convert to HSV
     
-    # Convert the frame to HSV color space
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # 🖌️ STEP 5: Create mask for white cloak
+    cloak_mask = cv2.inRange(hsv, lower_white, upper_white)
     
-    #  STEP 5: Create a mask to detect red cloak
-    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)  # First range
-    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)  # Second range
-    cloak_mask = mask1 + mask2  # Combine both
-    
-    #  STEP 6: Clean the mask (remove small spots)
-    kernel = np.ones((3, 3), np.uint8)  # Small matrix for cleaning
+    # 🧹 STEP 6: Clean the mask (remove noise)
+    kernel = np.ones((3, 3), np.uint8)
     cloak_mask = cv2.morphologyEx(cloak_mask, cv2.MORPH_OPEN, kernel, iterations=2)
-    cloak_mask = cv2.dilate(cloak_mask, kernel, iterations=1)  # Make cloak edges stronger
-    
-    # Invert mask: Areas that are NOT cloak
+    cloak_mask = cv2.dilate(cloak_mask, kernel, iterations=1)
     mask_inv = cv2.bitwise_not(cloak_mask)
     
-    #  STEP 7: Replace cloak area with background
-    cloak_part = cv2.bitwise_and(background, background, mask=cloak_mask)
-    rest_part = cv2.bitwise_and(frame, frame, mask=mask_inv)
-    final_output = cv2.addWeighted(cloak_part, 1, rest_part, 1, 0)
+    # 🪄 STEP 7: Replace white cloak area with background
+    cloak_area = cv2.bitwise_and(background, background, mask=cloak_mask)
+    non_cloak_area = cv2.bitwise_and(frame, frame, mask=mask_inv)
+    final_output = cv2.addWeighted(cloak_area, 1, non_cloak_area, 1, 0)
     
-    #  STEP 8: Show results
-    cv2.imshow("🪄 Invisibility Cloak", final_output)  # Main output
-    # Uncomment below if you want to see what the computer detects
-    # cv2.imshow("Cloak Mask", cloak_mask)
+    # 🎥 STEP 8: Show output
+    cv2.imshow("🪄 Invisibility Cloak (White)", final_output)
+    # cv2.imshow("Mask Debug", cloak_mask)  # Uncomment to see detection mask
     
-    #  STEP 9: Keyboard controls
+    # 🎮 STEP 9: Controls
     key = cv2.waitKey(1) & 0xFF
-    if key == 27:  # ESC key to exit
+    if key == 27:  # ESC to quit
         print("👋 Exiting...")
         break
-    elif key == ord('b'):  # Press 'b' to re-capture background
-        print(" Re-capturing background... Stand still!")
+    elif key == ord('b'):  # B to recapture background
+        print("♻️ Re-capturing background...")
         for i in range(60):
             ret, background = cap.read()
             if ret:
                 background = cv2.flip(background, 1)
-        print(" Background updated!")
+        print("✅ Background updated!")
 
-#  STEP 10: Release resources
+# 🛑 STEP 10: Release resources
 cap.release()
 cv2.destroyAllWindows()
