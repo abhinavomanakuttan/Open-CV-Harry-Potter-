@@ -56,6 +56,11 @@ This project is designed so even **school students** can follow it easily! 🎓
 ```
 
 ---
+# 🖼️ Flowchart
+
+<p align="left">
+  <img src="Image.png"" alt="Invisibility Cloak Flowchart" width="400">
+</p>
 
 ### 🎨 Cloak Detection (HSV Color Space)
 
@@ -65,6 +70,7 @@ We use **HSV (Hue, Saturation, Value)** because it’s better for detecting colo
 * **Saturation (S):** Intensity of the color
 * **Value (V):** Brightness
 
+<!--
 ![HSV Color Wheel](https://raw.githubusercontent.com/opencv/opencv/master/doc/tutorials/imgproc/imgproc_hsv/hsv_colorwheel.png)
 
 For **Red Cloak**, we use two ranges:
@@ -85,20 +91,20 @@ For **Red Cloak**, we use two ranges:
 3. **Final Output:** Cloak area replaced with background
    ![Final Output](https://i.ibb.co/DL7Bg7X/invisible.jpg)
 
----
+--->
 
 ## 🏃 How to Run
 
 1. Save the code into a file, for example:
 
    ```
-   invisibility_cloak.py
+   cloak.py
    ```
 
 2. Run it using:
 
    ```bash
-   python invisibility_cloak.py
+   python cloak.py
    ```
 
 3. Wear a **red cloth** and watch yourself disappear! 😱
